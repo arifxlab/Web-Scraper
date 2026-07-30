@@ -1,19 +1,15 @@
-import logging
 import time
 
 import requests
 
 from app.core.config import settings
+from app.core.logger import get_logger
 from app.scraper.robots import RobotsChecker
 
-
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ScraperClient:
-    MAX_RETRIES = 3
-    TIMEOUT = 30
-
     def __init__(self, robots: RobotsChecker):
         self.robots = robots
 
@@ -22,7 +18,12 @@ class ScraperClient:
         self.session.headers.update(
             {
                 "User-Agent": settings.USER_AGENT,
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept": (
+                    "text/html,"
+                    "application/xhtml+xml,"
+                    "application/xml;q=0.9,"
+                    "*/*;q=0.8"
+                ),
                 "Accept-Language": "en-US,en;q=0.9",
                 "Connection": "keep-alive",
             }
@@ -30,16 +31,17 @@ class ScraperClient:
 
     def get(self, url: str) -> requests.Response:
         if not self.robots.can_fetch(url):
-            raise PermissionError(
-                f"robots.txt disallows crawling: {url}"
-            )
+            raise PermissionError(f"robots.txt disallows crawling: {url}")
 
-        for attempt in range(1, self.MAX_RETRIES + 1):
+        for attempt in range(
+            1,
+            settings.MAX_RETRIES + 1,
+        ):
             try:
                 logger.info(
                     "Request %d/%d -> %s",
                     attempt,
-                    self.MAX_RETRIES,
+                    settings.MAX_RETRIES,
                     url,
                 )
 
@@ -47,7 +49,7 @@ class ScraperClient:
 
                 response = self.session.get(
                     url,
-                    timeout=self.TIMEOUT,
+                    timeout=settings.TIMEOUT,
                 )
 
                 response.raise_for_status()
@@ -67,10 +69,8 @@ class ScraperClient:
                 ):
                     raise
 
-                if attempt == self.MAX_RETRIES:
-                    logger.exception(
-                        "Maximum retries reached."
-                    )
+                if attempt == settings.MAX_RETRIES:
+                    logger.exception("Maximum retries reached.")
                     raise
 
                 backoff = 2 ** (attempt - 1)
@@ -90,5 +90,10 @@ class ScraperClient:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type,
+        exc_value,
+        traceback,
+    ):
         self.close()

@@ -2,34 +2,32 @@ import csv
 from pathlib import Path
 
 from app.models.product import Product
+from app.storage.base_writer import BaseWriter
 
 
-class CSVWriter:
-    def __init__(self, output_dir: str = "data"):
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-
+class CSVWriter(BaseWriter):
     def write(
         self,
         filename: str,
         products: list[Product],
     ) -> Path:
-        output_file = self.output_dir / filename
+
+        output_file = self.get_output_file(filename)
+
+        fieldnames = [
+            "title",
+            "price",
+            "availability",
+            "rating",
+            "product_url",
+            "image_url",
+        ]
 
         with output_file.open(
             "w",
             newline="",
             encoding="utf-8",
         ) as csv_file:
-
-            fieldnames = [
-                "title",
-                "price",
-                "availability",
-                "rating",
-                "product_url",
-                "image_url",
-            ]
 
             writer = csv.DictWriter(
                 csv_file,
@@ -39,8 +37,6 @@ class CSVWriter:
             writer.writeheader()
 
             for product in products:
-                writer.writerow(
-                    product.model_dump(mode="json")
-                )
+                writer.writerow(product.model_dump(mode="json"))
 
         return output_file

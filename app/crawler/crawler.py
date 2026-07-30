@@ -29,9 +29,7 @@ class WebCrawler:
             books = parser.find_all("article.product_pod")
 
             for book in books:
-                product = DataCleaner.clean(
-                    self.extractor.extract(book)
-                )
+                product = DataCleaner.clean(self.extractor.extract(book))
 
                 if str(product.product_url) not in visited:
                     visited.add(str(product.product_url))

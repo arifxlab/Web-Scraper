@@ -23,10 +23,7 @@ class ProductExtractor:
         price_text = article.select_one(".price_color").get_text(strip=True)
         price = float(price_text.replace("£", "").replace("Â", ""))
 
-        availability = (
-            article.select_one(".availability")
-            .get_text(strip=True)
-        )
+        availability = article.select_one(".availability").get_text(strip=True)
 
         rating_classes = article.select_one("p.star-rating")["class"]
         rating = 0

@@ -1,8 +1,25 @@
+# Virtual environment
 .venv/
+
+# IDE
 .idea/
+
+# Python
 __pycache__/
 *.pyc
 
+# Environment files
 .env
 
-data/*.json
+# Generated data
+data/
+logs/
+
+# Test & lint caches
+.pytest_cache/
+.ruff_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml

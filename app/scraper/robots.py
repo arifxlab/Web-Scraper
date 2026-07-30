@@ -1,9 +1,9 @@
-import logging
 from urllib.parse import urljoin
 from urllib.robotparser import RobotFileParser
 
+from app.core.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class RobotsChecker:
